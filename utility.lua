@@ -1669,7 +1669,7 @@ function Auxiliary.RegisterMergedDelayedEvent_ToSingleCard(c,code,events)
 	--use global effect to raise event for face-down cards
 	if not Auxiliary.merge_single_global_check then
 		Auxiliary.merge_single_global_check=true
-		local ge1=Effect.GlobalEffect()
+		local ge1=Effect.CreateEffect(c)
 		ge1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
 		ge1:SetCode(EVENT_CHAIN_END)
 		ge1:SetOperation(Auxiliary.RegisterMergedDelayedEvent_ToSingleCard_RaiseEvent)
@@ -1981,4 +1981,38 @@ function Auxiliary.MonsterEffectPropertyFilter(flag)
 	return function (e)
 		return e:IsHasProperty(flag) and not e:IsHasRange(LOCATION_PZONE)
 	end
+end
+
+-- patch for Card.SetSPSummonOnce for hints
+function Auxiliary.SPSummonOnceHintCondition(e,tp,eg,ep,ev,re,r,rp)
+	return Duel.IsGlobalFlag(GLOBALFLAG_SPSUMMON_ONCE)
+end
+function Auxiliary.SPSummonOnceHintTarget(e,c)
+	return c:IsType(TYPE_MONSTER) and not c:CheckSPSummonOnce(c:GetControler())
+end
+function Auxiliary.SPSummonOnceHintInit(c)
+	local e1=Effect.CreateEffect(c)
+	e1:SetType(EFFECT_TYPE_SINGLE)
+	e1:SetProperty(EFFECT_FLAG_CANNOT_DISABLE+EFFECT_FLAG_UNCOPYABLE+EFFECT_FLAG_SET_AVAILABLE+EFFECT_FLAG_CLIENT_HINT)
+	e1:SetDescription(226)
+
+	local e2=Effect.CreateEffect(c)
+	e2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_GRANT)
+	e2:SetProperty(EFFECT_FLAG_IGNORE_IMMUNE+EFFECT_FLAG_SET_AVAILABLE+EFFECT_FLAG_IGNORE_RANGE)
+	e2:SetCondition(Auxiliary.SPSummonOnceHintCondition)
+	local range=0xff-LOCATION_MZONE
+	e2:SetTargetRange(range,range)
+	e2:SetTarget(Auxiliary.SPSummonOnceHintTarget)
+	e2:SetLabelObject(e1)
+	Duel.RegisterEffect(e2,0)
+end
+
+Auxiliary.SPSummonOnceHintInited=false
+Auxiliary.original_SetSPSummonOnce=Card.SetSPSummonOnce
+function Card.SetSPSummonOnce(c,...)
+	if not Auxiliary.SPSummonOnceHintInited then
+		Auxiliary.SPSummonOnceHintInited=true
+		Auxiliary.SPSummonOnceHintInit(c)
+	end
+	return Auxiliary.original_SetSPSummonOnce(c,...)
 end

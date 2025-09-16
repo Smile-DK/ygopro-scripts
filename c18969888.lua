@@ -1,4 +1,4 @@
---燦幻超龍ドランセンド·ドラギオン
+--燦幻超龍トランセンド・ドラギオン
 function c18969888.initial_effect(c)
 	aux.AddSynchroProcedure(c,aux.FilterBoolFunction(Card.IsRace,RACE_DRAGON),aux.NonTuner(Card.IsRace,RACE_DRAGON),1)
 	c:EnableReviveLimit()
@@ -46,7 +46,7 @@ function c18969888.initial_effect(c)
 	c:RegisterEffect(e4)
 	if not c18969888.global_check then
 		c18969888.global_check=true
-		local ge1=Effect.GlobalEffect()
+		local ge1=Effect.CreateEffect(c)
 		ge1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
 		ge1:SetCode(EVENT_ATTACK_ANNOUNCE)
 		ge1:SetOperation(c18969888.checkop)

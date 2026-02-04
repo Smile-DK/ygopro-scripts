@@ -1,0 +1,29 @@
+stages:
+  - build
+  - deploy
+
+variables:
+  GIT_DEPTH: "1"
+
+build:
+  stage: build
+  dependencies: []
+  tags:
+    - linux
+  script:
+    - mkdir dist
+    - 7z a -mx9 dist/script.zip *.lua patches
+  artifacts:
+    paths:
+      - dist/
+
+upload_to_minio:
+  stage: deploy
+  dependencies:
+    - build
+  tags:
+    - linux
+  script:
+    - aws s3 --endpoint=https://minio.moenext.com:9000 sync --delete dist/ s3://mycard/koishipro/script-zip
+  only:
+    - master

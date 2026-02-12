@@ -204,15 +204,15 @@ function Auxiliary.SynMixCondition(f1,f2,f3,f4,minct,maxct,gc)
 				local mgchk=false
 				local goalchk=false
 				if mg1 then
+					mg=mg1:Filter(Card.IsCanBeSynchroMaterial,nil,c)
 					mgchk=true
-					if min and min==max and #mg1==min+1 then
-						goalchk=Auxiliary.SynMixCheckGoal(tp,mg1,0,0,c,Group.CreateGroup(),smat,gc,mgchk,goalchk)
+					if min and min==max and #mg==#mg1 and #mg==min+1 then
+						goalchk=Auxiliary.SynMixCheckGoal(tp,mg,0,0,c,Group.CreateGroup(),smat,gc,mgchk,goalchk)
 						if not goalchk then
 							Duel.ResetFlagEffect(tp,8173184+1)
 							return false
 						end
 					end
-					mg=mg1:Filter(Card.IsCanBeSynchroMaterial,nil,c)
 				else
 					mg=Auxiliary.GetSynMaterials(tp,c)
 				end
@@ -238,6 +238,7 @@ function Auxiliary.SynMixTarget(f1,f2,f3,f4,minct,maxct,gc)
 				if Duel.IsPlayerAffectedByEffect(tp,8173184) then
 					Duel.RegisterFlagEffect(tp,8173184+1,0,0,1)
 				end
+				local cancel=Duel.IsSummonCancelable()
 				local g=Group.CreateGroup()
 				local mg
 				local mgchk=false
@@ -245,6 +246,13 @@ function Auxiliary.SynMixTarget(f1,f2,f3,f4,minct,maxct,gc)
 				if mg1 then
 					mg=mg1:Filter(Card.IsCanBeSynchroMaterial,nil,c)
 					mgchk=true
+					if min and min==max and #mg==#mg1 and #mg==min+1 and not cancel then
+						g:Merge(mg)
+						g:KeepAlive()
+						e:SetLabelObject(g)
+						Duel.ResetFlagEffect(tp,8173184+1)
+						return true
+					end
 				else
 					mg=Auxiliary.GetSynMaterials(tp,c)
 				end
@@ -253,7 +261,6 @@ function Auxiliary.SynMixTarget(f1,f2,f3,f4,minct,maxct,gc)
 				local c2
 				local c3
 				local g4=Group.CreateGroup()
-				local cancel=Duel.IsSummonCancelable()
 				Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_SMATERIAL)
 				c1=mg:Filter(Auxiliary.SynMixFilter1,nil,f1,f2,f3,f4,minc,maxc,c,mg,smat,gc,mgchk,goalchk):SelectUnselect(g,tp,false,cancel,1,1)
 				if not c1 then goto SynMixTargetSelectCancel end

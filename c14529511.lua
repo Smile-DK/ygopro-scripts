@@ -64,6 +64,8 @@ function s.desfilter(c,e)
 	return c:IsFaceup() and c:IsSetCard(0x1a1) and c:IsCanBeEffectTarget(e)
 end
 function s.destg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+	local g1=Duel.GetMatchingGroup(s.desfilter,tp,LOCATION_MZONE,0,nil,e)
+	local g2=Duel.GetMatchingGroup(Card.IsCanBeEffectTarget,tp,0,LOCATION_ONFIELD,nil,e)
 	if chkc then return false end
 	local g1=Duel.GetMatchingGroup(s.desfilter,tp,LOCATION_MZONE,0,nil,e)
 	local g2=Duel.GetMatchingGroup(Card.IsCanBeEffectTarget,tp,0,LOCATION_ONFIELD,nil,e)
